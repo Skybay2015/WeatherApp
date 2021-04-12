@@ -1,0 +1,31 @@
+.search_input {
+   padding: 10px;
+   font-size: 17px;
+   border: 1px solid grey;
+
+   width: 80%;
+   background: #f1f1f1;
+}
+
+/* Style the submit .search_btn */
+.search_btn {
+   width: 20%;
+   padding: 10px;
+   background: #2196f3;
+   color: white;
+   font-size: 17px;
+   border: 1px solid grey;
+   border-left: none; /* Prevent double borders */
+   cursor: pointer;
+}
+
+.search_btn:hover {
+   background: #0b7dda;
+}
+
+/* Clear floats */
+.search_container {
+   display: flex;
+   max-width: 500px;
+   margin: 30px auto 0;
+}
