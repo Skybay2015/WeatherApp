@@ -1,65 +1,73 @@
 import React from 'react';
-import { letterFrequency } from '@visx/mock-data';
+
 import { Group } from '@visx/group';
-import { Bar } from '@visx/shape';
-import { scaleLinear, scaleBand } from '@visx/scale';
-import { AxisLeft } from '@visx/axis';
+import { LinePath } from '@visx/shape';
+import { GridRows, GridColumns } from '@visx/grid';
+import { curveBasis } from '@visx/curve';
+import { scaleTime, scaleLinear } from '@visx/scale';
+import { AxisLeft, AxisBottom } from '@visx/axis';
 
 // We'll use some mock data from `@visx/mock-data` for this.
-const data = letterFrequency;
-
-console.log(data);
 
 // Define the graph dimensions and margins
-const width = 1000;
+const width = 1100;
 const height = 500;
-const margin = { top: 20, bottom: 20, left: 20, right: 20 };
+const margin = { top: 20, bottom: 30, left: 30, right: 20 };
 
 // Then we'll create some bounds
 const xMax = width - margin.left - margin.right;
 const yMax = height - margin.top - margin.bottom;
 
 // We'll make some helpers to get at the data we want
-const x = (d) => d.letter;
-const y = (d) => +d.frequency * 1;
+const date = (d) => new Date(d.dt * 1000);
+const temp = (d) => d.main.temp;
 
-// And then scale the graph by our data
-const xScale = scaleBand({
-   range: [0, xMax],
-   round: true,
-   domain: data.map(x),
-   padding: 0.3,
-});
-const yScale = scaleLinear({
-   range: [yMax, 0],
-   round: true,
-   domain: [0, Math.max(...data.map(y))],
-});
+const timeScale = (data) =>
+   scaleTime({
+      domain: [Math.min(...data.map(date)), Math.max(...data.map(date))],
+      range: [0, xMax],
+   });
 
-// Compose together the scale and accessor functions to get point functions
-const compose = (scale, accessor) => (data) => scale(accessor(data));
-const xPoint = compose(xScale, x);
-const yPoint = compose(yScale, y);
+const tempScale = (data) =>
+   scaleLinear({
+      domain: [Math.min(...data.map(temp)), Math.max(...data.map(temp))],
+      range: [yMax, 0],
+   });
 
 // Finally we'll embed it all in an SVG
-function Chart(props) {
+function Chart({ data }) {
    return (
       <svg width={width} height={height}>
-         {data.map((d, i) => {
-            const barHeight = yMax - yPoint(d);
-            return (
-               <Group key={`bar-${i}`}>
-                  <AxisLeft scale={xScale} />
-                  <Bar
-                     x={xPoint(d)}
-                     y={yMax - barHeight}
-                     height={barHeight}
-                     width={xScale.bandwidth()}
-                     fill='#fc2e1c'
-                  />
-               </Group>
-            );
-         })}
+         <Group left={margin.left} top={margin.top}>
+            <GridRows
+               scale={tempScale(data)}
+               width={xMax}
+               height={yMax}
+               stroke='#e0e0e0'
+            />
+            <GridColumns
+               scale={timeScale(data)}
+               width={xMax}
+               height={yMax}
+               stroke='#e0e0e0'
+               numTicks={25}
+            />
+            <AxisLeft scale={tempScale(data)} />
+            <text x='-70' y='15' transform='rotate(-90)' fontSize={10}>
+               Temperature (°C)
+            </text>
+            <AxisBottom numTicks={25} top={yMax} scale={timeScale(data)} />
+            <LinePath
+               data={data}
+               curve={curveBasis}
+               x={(d) => timeScale(data)(date(d))}
+               y={(d) => tempScale(data)(temp(d))}
+               stroke='#000'
+               strokeWidth={1.5}
+               strokeOpacity={1}
+               strokeDasharray='1,5'
+            />
+         </Group>
       </svg>
    );
 }

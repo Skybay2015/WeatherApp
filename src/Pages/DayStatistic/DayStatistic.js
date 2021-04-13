@@ -4,9 +4,10 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import CityName from '../../Components/CityName';
 import Wrapper from '../../Components/Wrapper';
-import Chart from '../../Components/Chart';
+
 import { getDate } from '../../helperFunctions';
 import { WiCloudy, WiRain, WiWindy } from 'weather-icons-react';
+import Chart from '../../Components/Chart';
 
 const StatisticContainer = styled.div`
    display: flex;
@@ -105,7 +106,7 @@ const DayStatistic = () => {
                );
             })}
          </StatisticContainer>
-         <Chart />
+         <Chart data={day} />
       </Wrapper>
    );
 };
